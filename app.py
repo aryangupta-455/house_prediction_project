@@ -5,9 +5,7 @@ import os
 
 st.title("🏠 Melbourne House Price Predictor (Local Version)")
 
-model_path = r"P:\projects\house price prediction\house_price_model.pkl"
-model = joblib.load(model_path)
-
+model = joblib.load("house_price_model.pkl")
 
 st.sidebar.header("Enter Property Features")
 
