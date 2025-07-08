@@ -11,3 +11,4 @@ nbformat
 xgboost
 joblib
 transformers
+torch
