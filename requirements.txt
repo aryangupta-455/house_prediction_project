@@ -6,3 +6,9 @@ plotly
 scikit-learn
 streamlit
 ipykernel
+nbformat
+xgboost
+tensorflow
+category_encoders
+joblib
+transformers
