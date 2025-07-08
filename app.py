@@ -9,7 +9,7 @@ import os
 st.title("🏠 Melbourne House Price Predictor (Local Version)")
 
 model = joblib.load("xgbboost_model.pkl")
-preprocessor = joblib.load('preprocessor.pkl')
+
 
 
 #log transformer 
@@ -20,6 +20,7 @@ class LogTransformer(BaseEstimator, TransformerMixin):
     def transform(self, X):
         return np.log1p(X)
 
+preprocessor = joblib.load('preprocessor.pkl')
 
 st.sidebar.header("Enter Property Features")
 
