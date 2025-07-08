@@ -17,7 +17,7 @@ class LogTransformer(BaseEstimator, TransformerMixin):
 # -----------------------------
 # Title
 # -----------------------------
-st.title("🏠 Melbourne House Price Predictor")
+st.title(" Melbourne House Price Predictor")
 
 # -----------------------------
 # Load Model and Preprocessor
@@ -40,35 +40,40 @@ Assistant:"""
 # -----------------------------
 # Sidebar Inputs
 # -----------------------------
-st.sidebar.header("Enter Property Features")
+st.sidebar.header("This model is trained on melbourne data and consist AI assistant for you help.")
 
 def user_input():
-    Rooms = st.number_input("Rooms", min_value=1, max_value=10, value=3)
-    Bathroom = st.number_input("Bathroom", min_value=1, max_value=5, value=2)
-    Bedroom2 = st.number_input("Bedroom2", min_value=1, max_value=10, value=3)
-    Postcode = st.number_input("Postcode", min_value=3000, max_value=3999, value=3100)
-    Landsize = st.number_input("Landsize (in sqft)", min_value=1, value=500)
-    BuildingArea = st.number_input("Building Area", min_value=1, value=120)
+    Rooms = st.number_input("Rooms", 1, 10)
+    Bathroom = st.number_input("Bathroom", 1, 5)
+    Bedroom2 = st.number_input("Bedroom2", 1, 10)
+    Postcode = st.number_input("Postcode", 3000, 3999)
+    Landsize = st.number_input("Landsize (in sqft)", 1)
+    BuildingArea = st.number_input("Building Area", 1)
+    Distance = st.number_input("Distance from CBD (in km)", 0.0, 50.0)
+    price_per_sqrft = st.number_input("Price per square foot (optional estimate)", 100.0)
+
     Type = st.selectbox("Type", ["h", "u", "t"])
     Method = st.selectbox("Method", ["S", "SP", "PI", "VB"])
     Regionname = st.selectbox("Region", [
-        "Northern Metropolitan", 
-        "Western Metropolitan", 
-        "Southern Metropolitan", 
-        "Eastern Metropolitan"
+        "Northern Metropolitan", "Western Metropolitan", "Southern Metropolitan", "Eastern Metropolitan"
     ])
-    
-    return pd.DataFrame([{
+
+    data = {
         'Rooms': Rooms,
         'Bathroom': Bathroom,
         'Bedroom2': Bedroom2,
         'Postcode': Postcode,
         'Landsize': Landsize,
         'BuildingArea': BuildingArea,
+        'Distance': Distance,
+        'price_per_sqrft': price_per_sqrft,
         'Type': Type,
         'Method': Method,
         'Regionname': Regionname
-    }])
+    }
+
+    return pd.DataFrame([data])
+
 
 input_df = user_input()
 
@@ -79,9 +84,9 @@ if st.button("Predict Price"):
     try:
         X_processed = preprocessor.transform(input_df)
         prediction = model.predict(X_processed)
-        st.success(f"🏷️ Predicted House Price: **${int(prediction[0]):,}**")
+        st.success(f" Predicted House Price: **${int(prediction[0]):,}**")
     except Exception as e:
-        st.error(f"❌ Error during prediction: {str(e)}")
+        st.error(f"Error during prediction: {str(e)}")
 
 # -----------------------------
 # Region Guide
@@ -97,12 +102,12 @@ with st.expander("📍 Region Guide"):
 # -----------------------------
 # LLM Assistant
 # -----------------------------
-st.header('🤖 AI Assistant: Housing & Investment Advice')
-user_query = st.text_input("💬 Ask a question about housing, investment, or suburbs")
+st.header('AI Assistant: Housing & Investment Advice')
+user_query = st.text_input("Ask a question about housing, investment, or suburbs")
 
 if user_query:
     try:
         response = get_llm_responses(user_query)
         st.info(response)
     except Exception as e:
-        st.error(f"❌ Error fetching AI response: {str(e)}")
+        st.error(f"Error fetching AI response: {str(e)}")
