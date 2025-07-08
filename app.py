@@ -26,7 +26,7 @@ st.sidebar.header("Enter Property Features")
 
 #llm model function
 
-llm = pipeline('text_generation', model = 'tiiuae/falcon-7b-instruct')
+llm = pipeline('text-generation', model = 'tiiuae/falcon-7b-instruct')
 def get_llm_responses(user_input):
     prompt = f'User: {user_input}\nAssistant:'
     response = llm(prompt,max_length = 200, do_sample = True)
