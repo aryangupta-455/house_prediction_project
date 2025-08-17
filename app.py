@@ -1,113 +1,61 @@
 import streamlit as st
 import pandas as pd
-import joblib
+import pickle
 from huggingface_hub import InferenceClient
-from sklearn.base import BaseEstimator, TransformerMixin
-import numpy as np
 
-# -----------------------------
-# Custom Log Transformer
-# -----------------------------
-class LogTransformer(BaseEstimator, TransformerMixin):
-    def fit(self, X, y=None):
-        return self
-    def transform(self, X):
-        return np.log1p(X)
+# -------------------------------
+# Load trained ML model
+# -------------------------------
+model = pickle.load(open("house_price_model.pkl", "rb"))
 
-# -----------------------------
-# Title
-# -----------------------------
-st.title("🏡 Melbourne House Price Predictor")
+# -------------------------------
+# Hugging Face Inference Client
+# -------------------------------
+client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token=st.secrets["HF_TOKEN"])
 
-# -----------------------------
-# Load Model and Preprocessor
-# -----------------------------
-model = joblib.load("xgbboost_model.pkl")
-preprocessor = joblib.load("preprocessor.pkl")
+# -------------------------------
+# Streamlit UI
+# -------------------------------
+st.title("🏠 House Price Prediction & AI Assistant")
 
-# -----------------------------
-# Hugging Face Inference Client (Zephyr conversational model)
-# -----------------------------
-client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token=st.secrets["hf_token"])
+# Sidebar inputs
+st.sidebar.header("House Features")
+rooms = st.sidebar.number_input("Number of Rooms", 1, 10, 3)
+distance = st.sidebar.number_input("Distance from CBD (km)", 0.0, 50.0, 10.0)
+bathrooms = st.sidebar.number_input("Number of Bathrooms", 1, 5, 2)
+car = st.sidebar.number_input("Car Spots", 0, 5, 1)
+landsize = st.sidebar.number_input("Land Size (m²)", 0.0, 1000.0, 100.0)
+buildingarea = st.sidebar.number_input("Building Area (m²)", 0.0, 500.0, 100.0)
+region = st.sidebar.selectbox("Region", ["Northern Metropolitan", "Southern Metropolitan", "Eastern Metropolitan", "Western Metropolitan"])
 
-def get_llm_responses(user_input: str) -> str:
-    try:
-        messages = [
-            {"role": "system", "content": "You are a helpful real estate assistant specializing in Melbourne housing."},
-            {"role": "user", "content": user_input}
-        ]
-        response = client.conversational(messages, max_new_tokens=200)
-        return response["generated_text"].strip()
-    except Exception as e:
-        return f"⚠️ AI Error: {str(e)}"
+# Predict button
+if st.sidebar.button("Predict Price"):
+    input_data = pd.DataFrame(
+        [[rooms, distance, bathrooms, car, landsize, buildingarea, region]],
+        columns=["Rooms", "Distance", "Bathroom", "Car", "Landsize", "BuildingArea", "Regionname"]
+    )
+    price = model.predict(input_data)[0]
+    st.success(f"Predicted House Price: ${price:,.0f}")
 
-# -----------------------------
-# Sidebar Inputs
-# -----------------------------
-st.sidebar.header("🔧 Input House Features")
+# -------------------------------
+# AI Assistant
+# -------------------------------
+st.markdown("---")
+st.markdown("### 🤖 AI Assistant: Housing & Investment Advice")
+st.write("Ask me about housing, investment, or suburbs in Melbourne:")
 
-def user_input():
-    Rooms = st.number_input("Rooms", 1, 10)
-    Bathroom = st.number_input("Bathroom", 1, 5)
-    Bedroom2 = st.number_input("Bedroom2", 1, 10)
-    Postcode = st.number_input("Postcode", 3000, 3999)
-    Landsize = st.number_input("Landsize (in sqft)", 1)
-    BuildingArea = st.number_input("Building Area", 1)
-    Distance = st.number_input("Distance from CBD (in km)", 0.0, 50.0)
-    price_per_sqrft = st.number_input("Price per square foot (optional estimate)", 100.0)
+user_input = st.text_input("Your Question:")
 
-    Type = st.selectbox("Type", ["h", "u", "t"])
-    Method = st.selectbox("Method", ["S", "SP", "PI", "VB"])
-    Regionname = st.selectbox("Region", [
-        "Northern Metropolitan", "Western Metropolitan", "Southern Metropolitan", "Eastern Metropolitan"
-    ])
-
-    data = {
-        'Rooms': Rooms,
-        'Bathroom': Bathroom,
-        'Bedroom2': Bedroom2,
-        'Postcode': Postcode,
-        'Landsize': Landsize,
-        'BuildingArea': BuildingArea,
-        'Distance': Distance,
-        'price_per_sqrft': price_per_sqrft,
-        'Type': Type,
-        'Method': Method,
-        'Regionname': Regionname
-    }
-
-    return pd.DataFrame([data])
-
-input_df = user_input()
-
-# -----------------------------
-# Prediction
-# -----------------------------
-if st.button("🔮 Predict Price"):
-    try:
-        X_processed = preprocessor.transform(input_df)
-        prediction = model.predict(X_processed)
-        st.success(f" Predicted House Price: **${int(prediction[0]):,}**")
-    except Exception as e:
-        st.error(f"⚠️ Error during prediction: {str(e)}")
-
-# -----------------------------
-# Region Guide
-# -----------------------------
-with st.expander("📍 Region Guide"):
-    st.markdown("""
-- **Northern Metropolitan**: Budget-friendly, great for first-time buyers.
-- **Western Metropolitan**: Good infrastructure, family-oriented.
-- **Southern Metropolitan**: Premium area, near beaches.
-- **Eastern Metropolitan**: Green suburbs, higher appreciation.
-""")
-
-# -----------------------------
-# LLM Assistant
-# -----------------------------
-st.header('🤖 AI Assistant: Housing & Investment Advice')
-user_query = st.text_input("Ask me about housing, investment, or suburbs in Melbourne:")
-
-if user_query:
-    response = get_llm_responses(user_query)
-    st.info(response)
+if user_input:
+    with st.spinner("Thinking..."):
+        try:
+            response = client.text_generation(
+                user_input,
+                max_new_tokens=250,
+                temperature=0.7,
+                do_sample=True,
+                repetition_penalty=1.2
+            )
+            st.success(response)
+        except Exception as e:
+            st.error(f"⚠️ AI Error: {e}")
