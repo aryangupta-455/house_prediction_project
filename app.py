@@ -17,7 +17,7 @@ class LogTransformer(BaseEstimator, TransformerMixin):
 # -----------------------------
 # Title
 # -----------------------------
-st.title(" Melbourne House Price Predictor")
+st.title("🏡 Melbourne House Price Predictor")
 
 # -----------------------------
 # Load Model and Preprocessor
@@ -26,21 +26,31 @@ model = joblib.load("xgbboost_model.pkl")
 preprocessor = joblib.load("preprocessor.pkl")
 
 # -----------------------------
-# Hugging Face Inference Client
+# Hugging Face Inference Client (Free LLM)
 # -----------------------------
-client = InferenceClient('tiiuae/falcon-rw-1b', token=st.secrets["hf_token"])
+client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token=st.secrets["hf_token"])
 
-def get_llm_responses(user_input):
-    prompt = f"""You are a real estate assistant helping users decide on housing options in Melbourne.
-User question: {user_input}
-Assistant:"""
-    response = client.text_generation(prompt=prompt, max_new_tokens=100)
-    return response.strip()
+def get_llm_responses(user_input: str) -> str:
+    try:
+        prompt = (
+            "You are a real estate assistant helping users decide on housing options in Melbourne.\n"
+            f"User question: {user_input}\n"
+            "Assistant:"
+        )
+        response = client.text_generation(
+            prompt,
+            max_new_tokens=200,
+            temperature=0.7,
+            do_sample=True
+        )
+        return response.strip()
+    except Exception as e:
+        return f"⚠️ AI Error: {str(e)}"
 
 # -----------------------------
 # Sidebar Inputs
 # -----------------------------
-st.sidebar.header("This model is trained on melbourne data and consist AI assistant for you help.")
+st.sidebar.header("🔧 Input House Features")
 
 def user_input():
     Rooms = st.number_input("Rooms", 1, 10)
@@ -74,19 +84,18 @@ def user_input():
 
     return pd.DataFrame([data])
 
-
 input_df = user_input()
 
 # -----------------------------
 # Prediction
 # -----------------------------
-if st.button("Predict Price"):
+if st.button("🔮 Predict Price"):
     try:
         X_processed = preprocessor.transform(input_df)
         prediction = model.predict(X_processed)
         st.success(f" Predicted House Price: **${int(prediction[0]):,}**")
     except Exception as e:
-        st.error(f"Error during prediction: {str(e)}")
+        st.error(f"⚠️ Error during prediction: {str(e)}")
 
 # -----------------------------
 # Region Guide
@@ -102,12 +111,9 @@ with st.expander("📍 Region Guide"):
 # -----------------------------
 # LLM Assistant
 # -----------------------------
-st.header('AI Assistant: Housing & Investment Advice')
-user_query = st.text_input("Ask a question about housing, investment, or suburbs")
+st.header('🤖 AI Assistant: Housing & Investment Advice')
+user_query = st.text_input("Ask me about housing, investment, or suburbs in Melbourne:")
 
 if user_query:
-    try:
-        response = get_llm_responses(user_query)
-        st.info(response)
-    except Exception as e:
-        st.error(f"Error fetching AI response: {str(e)}")
+    response = get_llm_responses(user_query)
+    st.info(response)
