@@ -26,24 +26,18 @@ model = joblib.load("xgbboost_model.pkl")
 preprocessor = joblib.load("preprocessor.pkl")
 
 # -----------------------------
-# Hugging Face Inference Client (Free LLM)
+# Hugging Face Inference Client (Zephyr conversational model)
 # -----------------------------
 client = InferenceClient("HuggingFaceH4/zephyr-7b-beta", token=st.secrets["hf_token"])
 
 def get_llm_responses(user_input: str) -> str:
     try:
-        prompt = (
-            "You are a real estate assistant helping users decide on housing options in Melbourne.\n"
-            f"User question: {user_input}\n"
-            "Assistant:"
-        )
-        response = client.text_generation(
-            prompt,
-            max_new_tokens=200,
-            temperature=0.7,
-            do_sample=True
-        )
-        return response.strip()
+        messages = [
+            {"role": "system", "content": "You are a helpful real estate assistant specializing in Melbourne housing."},
+            {"role": "user", "content": user_input}
+        ]
+        response = client.conversational(messages, max_new_tokens=200)
+        return response["generated_text"].strip()
     except Exception as e:
         return f"⚠️ AI Error: {str(e)}"
 
