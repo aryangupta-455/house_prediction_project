@@ -22,7 +22,7 @@ st.title(" Melbourne House Price Predictor")
 # -----------------------------
 # Load Model and Preprocessor
 # -----------------------------
-model = joblib.load("xgboost_model.pkl")   # ✅ corrected filename
+model = joblib.load("xgbboost_model.pkl")   # ✅ corrected filename
 preprocessor = joblib.load("preprocessor.pkl")
 
 # -----------------------------
@@ -111,3 +111,4 @@ if user_query:
         st.info(response)
     except Exception as e:
         st.error(f"Error fetching AI response: {str(e)}")
+
