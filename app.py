@@ -28,7 +28,10 @@ preprocessor = joblib.load("preprocessor.pkl")
 # -----------------------------
 # Hugging Face Inference Client
 # -----------------------------
-client = InferenceClient('tiiuae/falcon-rw-1b', token=st.secrets["hf_token"])
+client = InferenceClient(
+    model="mistralai/Mistral-7B-Instruct-v0.2",
+    token=st.secrets["hf_token"]
+)
 
 def get_llm_responses(user_input):
     prompt = f"""You are a real estate assistant helping users decide on housing options in Melbourne.
@@ -111,4 +114,5 @@ if user_query:
         st.info(response)
     except Exception as e:
         st.error(f"Error fetching AI response: {str(e)}")
+
 
