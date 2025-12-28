@@ -34,18 +34,25 @@ client = InferenceClient(
 )
 
 def get_llm_responses(user_input):
-    prompt = f"""You are a helpful real estate assistant for Melbourne housing.
-Answer clearly and concisely.
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a helpful real estate assistant for Melbourne housing and investment advice."
+        },
+        {
+            "role": "user",
+            "content": user_input
+        }
+    ]
 
-User: {user_input}
-Assistant:"""
-    response = client.text_generation(
-        prompt,
-        max_new_tokens=150,
-        temperature=0.7,
-        do_sample=True
+    response = client.chat.completions.create(
+        messages=messages,
+        max_tokens=150,
+        temperature=0.7
     )
-    return response.strip()
+
+    return response.choices[0].message.content
+
 
 # -----------------------------
 # Sidebar Inputs
