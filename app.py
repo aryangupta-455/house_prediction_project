@@ -34,10 +34,17 @@ client = InferenceClient(
 )
 
 def get_llm_responses(user_input):
-    prompt = f"""You are a real estate assistant helping users decide on housing options in Melbourne.
-User question: {user_input}
+    prompt = f"""You are a helpful real estate assistant for Melbourne housing.
+Answer clearly and concisely.
+
+User: {user_input}
 Assistant:"""
-    response = client.text_generation(prompt=prompt, max_new_tokens=100)
+    response = client.text_generation(
+        prompt,
+        max_new_tokens=150,
+        temperature=0.7,
+        do_sample=True
+    )
     return response.strip()
 
 # -----------------------------
@@ -114,5 +121,6 @@ if user_query:
         st.info(response)
     except Exception as e:
         st.error(f"Error fetching AI response: {str(e)}")
+
 
 
