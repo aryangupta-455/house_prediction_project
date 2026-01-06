@@ -30,7 +30,8 @@ preprocessor = joblib.load("preprocessor.pkl")
 # -----------------------------
 genai.configure(api_key = st.secrets["GEMINI_API_KEY"])
 
-gemini_model = genai.GenerativeModel("gemini-1.5-flash")
+gemini_model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
+
     
 
 def get_llm_responses(user_input):
@@ -126,6 +127,7 @@ if user_query:
         st.info(response)
     except Exception as e:
         st.error(f"Error fetching AI response: {str(e)}")
+
 
 
 
