@@ -12,3 +12,4 @@ xgboost
 joblib
 transformers
 torch
+google-generativeai
