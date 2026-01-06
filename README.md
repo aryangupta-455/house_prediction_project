@@ -1,6 +1,6 @@
 # 🏡 House Price Prediction with Streamlit + LLM Enhancement
 
-This project is an end-to-end **Machine Learning web application** that predicts **house prices** based on user input features. It is built using a **Random Forest Regressor** trained on the **Melbourne Housing Dataset**, enhanced with **LLM integration** from **Hugging Face** to make the app more interactive and educational.
+This project is an end-to-end **Machine Learning web application** that predicts **house prices** based on user input features. It is built using a **Random Forest Regressor** trained on the **Melbourne Housing Dataset**, enhanced with **LLM integration** of **Gemini-2.5-flash-lite** to make the app more interactive and educational.
 
 > 🔗 **Live App**: [House Price Predictor](https://housepredictionproject-c3duhnpbcalvr2f3t7xaz2.streamlit.app/)  
 > 💻 **GitHub Repo**: [aryangupta-455/house_prediction_project](https://github.com/aryangupta-455/house_prediction_project)
@@ -24,7 +24,7 @@ House prices are influenced by many complex factors, and predicting them accurat
 - ✅ Streamlit web app for real-time predictions  
 - ✅ Random Forest Regression with 90%+ R² score  
 - ✅ Preprocessing: missing values, encoding, scaling  
-- ✅ Hugging Face LLM integration for user Q&A and explanation  
+- ✅ gemini-2.5-flash-lite Face LLM integration for user Q&A and explanation  
 - ✅ Clean, intuitive UI with customizable inputs  
 - ✅ Modular Python code and reusability  
 
@@ -92,7 +92,7 @@ Streamlit UI (app.py)
 │
 ├──> Random Forest Model (model.pkl)
 │
-├──> LLM Response via HuggingFace API
+├──> LLM Response via gemini model
 │
 ▼
 Prediction Output + LLM Explanation
@@ -106,5 +106,5 @@ Prediction Output + LLM Explanation
 | Programming    | Python                                       |
 | ML Libraries   | Pandas, NumPy, Scikit-learn, Matplotlib      |
 | Web Framework  | Streamlit                                    |
-| LLM Integration| Hugging Face Transformers                    |
+| LLM Integration| Gemini Model(gemini-2.5-flash-lite)                   |
 | Deployment     | Streamlit Cloud                              |
