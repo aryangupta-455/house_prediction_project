@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import joblib
+from huggingface_hub import InferenceClient
 from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
-import google.generativeai as genai
 
 # -----------------------------
 # Custom Log Transformer
@@ -26,31 +26,32 @@ model = joblib.load("xgbboost_model.pkl")   # ✅ corrected filename
 preprocessor = joblib.load("preprocessor.pkl")
 
 # -----------------------------
-# Gemini model 
+# Hugging Face Inference Client
 # -----------------------------
-genai.configure(api_key = st.secrets["GEMINI_API_KEY"])
-
-gemini_model = genai.GenerativeModel("models/gemini-1.5-flash-latest")
-
-    
+client = InferenceClient(
+    model="mistralai/Mistral-7B-Instruct-v0.2",
+    token=st.secrets["hf_token"]
+)
 
 def get_llm_responses(user_input):
-    prompt = f"""
-You are a helpful real estate assistant for Melbourne housing and investment advice.
-
-User question:
-{user_input}
-"""
-
-    response = gemini_model.generate_content(
-        prompt,
-        generation_config={
-            "temperature": 0.7,
-            "max_output_tokens": 150
+    messages = [
+        {
+            "role": "system",
+            "content": "You are a helpful real estate assistant for Melbourne housing and investment advice."
+        },
+        {
+            "role": "user",
+            "content": user_input
         }
+    ]
+
+    response = client.chat.completions.create(
+        messages=messages,
+        max_tokens=150,
+        temperature=0.7
     )
 
-    return response.text
+    return response.choices[0].message.content
 
 
 # -----------------------------
@@ -127,6 +128,7 @@ if user_query:
         st.info(response)
     except Exception as e:
         st.error(f"Error fetching AI response: {str(e)}")
+
 
 
 
