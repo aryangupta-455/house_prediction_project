@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from huggingface_hub import InferenceClient
 from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
+import google.generativeai as genai
 
 # -----------------------------
 # Custom Log Transformer
@@ -26,32 +26,31 @@ model = joblib.load("xgbboost_model.pkl")   # ✅ corrected filename
 preprocessor = joblib.load("preprocessor.pkl")
 
 # -----------------------------
-# Hugging Face Inference Client
+# Gemini model 
 # -----------------------------
-client = InferenceClient(
-    model="mistralai/Mistral-7B-Instruct-v0.2",
-    token=st.secrets["hf_token"]
-)
+genai.configure(api_key = st.secrets["GEMINI_API_KEY"])
+
+gemini_model = genai.GenerativeModel("gemini-2.5-flash-lite")
+
+    
 
 def get_llm_responses(user_input):
-    messages = [
-        {
-            "role": "system",
-            "content": "You are a helpful real estate assistant for Melbourne housing and investment advice."
-        },
-        {
-            "role": "user",
-            "content": user_input
-        }
-    ]
+    prompt = f"""
+You are a helpful real estate assistant for Melbourne housing and investment advice.
 
-    response = client.chat.completions.create(
-        messages=messages,
-        max_tokens=150,
-        temperature=0.7
+User question:
+{user_input}
+"""
+
+    response = gemini_model.generate_content(
+        prompt,
+        generation_config={
+            "temperature": 0.7,
+            "max_output_tokens": 150
+        }
     )
 
-    return response.choices[0].message.content
+    return response.text
 
 
 # -----------------------------
@@ -119,8 +118,8 @@ with st.expander("📍 Region Guide"):
 # -----------------------------
 # LLM Assistant
 # -----------------------------
-st.header('AI Assistant: Housing & Investment Advice')
-user_query = st.text_input("Ask a question about housing, investment, or suburbs")
+st.header('AI Assistant: Housing Advice')
+user_query = st.text_input("Ask a question about housing, investment, or suburbs. Please Enter the Price and your requirements from above to get more generic and practical advice.")
 
 if user_query:
     try:
@@ -128,8 +127,6 @@ if user_query:
         st.info(response)
     except Exception as e:
         st.error(f"Error fetching AI response: {str(e)}")
-
-
 
 
 
