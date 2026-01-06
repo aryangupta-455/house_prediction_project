@@ -61,18 +61,23 @@ House prices are influenced by many complex factors, and predicting them accurat
 
 ---
 
-## 🤖 LLM Integration (Hugging Face)
+🤖 LLM Integration (Google Gemini)
 
-Integrated a pretrained LLM via Hugging Face to:
+Integrated Google’s Gemini LLM to:
 
-- Answer user questions in natural language  
-- Explain predictions  
-- Offer data-driven insights interactively  
+Answer user questions in natural language
 
-**Example queries:**
+Explain predictions and insights
 
-- "Why is my predicted price high?"  
-- "Which feature affects price the most?"
+Provide interactive, context-aware advice for housing and investment decisions
+
+Example queries:
+
+"Should I buy this house at this price?"
+
+"What factors make this property a good investment?"
+
+"Which features affect the predicted price the most?"
 
 ---
 
